@@ -1,0 +1,53 @@
+# Queue 1 for fixed priority preemptive scheduling
+q1 = []
+# Queue 2 for round robin scheduling
+q2 = []
+
+# function to add a process to the queues
+def add_process(process):
+    if process['priority'] == 0:
+        q1.insert(0, process)
+    else:
+        q1.append(process)
+
+# function to execute processes from the queues
+def execute_processes():
+    time = 0
+    while q1 or q2:
+        # execute processes from Queue 1
+        if q1:
+            current_process = q1.pop(0)
+            print("Executing process", current_process['name'], "from Queue 1 at time", time)
+            current_process['time'] -= 2
+            time += 2
+            # check for higher priority processes in Queue 1
+            for process in q1:
+                if process['priority'] > current_process['priority']:
+                    q2.append(current_process)
+                    current_process = q1.pop(q1.index(process))
+                    q1.insert(0, current_process)
+                    print("Process", current_process['name'], "preempted by process", q1[0]['name'], "at time", time)
+                    break
+            else:
+                # move process to Queue 2 if its time is not completed
+                if current_process['time'] > 0:
+                    q2.append(current_process)
+        # execute processes from Queue 2
+        else:
+            current_process = q2.pop(0)
+            print("Executing process", current_process['name'], "from Queue 2 at time", time)
+            current_process['time'] -= 2
+            time += 2
+            # move process to Queue 1 if its time is not completed
+            if current_process['time'] > 0:
+                q2.append(current_process)
+
+# add some processes to the queues
+add_process({'name': 'P1', 'priority': 1, 'time': 6})
+add_process({'name': 'P2', 'priority': 0, 'time': 8})
+add_process({'name': 'P3', 'priority': 2, 'time': 4})
+add_process({'name': 'P4', 'priority': 1, 'time': 2})
+
+# execute the processes
+execute_processes()
+
